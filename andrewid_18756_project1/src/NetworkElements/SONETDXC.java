@@ -73,6 +73,7 @@ public class SONETDXC extends Switch {
 		// Loop through the interfaces sending the packet on interfaces that are on the
 		// ring
 		// except the one it was received on. Basically what UPSR does
+		System.out.println(packet.getPackets());
 		for (OpticalNIC NIC : NICs) {
 			// which means the DXC is the source of this STS-1 Packet
 			if (nic == null) {
@@ -91,9 +92,23 @@ public class SONETDXC extends Switch {
 	 */
 	public void sendPackets() {
 		Map<Integer, List<STS1Packet>> destPackets = new HashMap<>();
-		while (!this.sendBuffer.isEmpty()) {
-			STS1Packet pkt = this.sendBuffer.remove();
-			destPackets.computeIfAbsent(pkt.getDest(), k -> new ArrayList<>()).add(pkt);
+		// while (!this.sendBuffer.isEmpty()) {
+		// STS1Packet pkt = this.sendBuffer.remove();
+		// destPackets.computeIfAbsent(pkt.getDest(), k -> new ArrayList<>()).add(pkt);
+		// }
+		// Check the size of the sendBuffer
+		if (this.sendBuffer.size() > 3) {
+			// If buffer size is greater than 3, remove only the first 3 packets
+			for (int i = 0; i < 3; i++) {
+				STS1Packet pkt = this.sendBuffer.remove();
+				destPackets.computeIfAbsent(pkt.getDest(), k -> new ArrayList<>()).add(pkt);
+			}
+		} else if (this.sendBuffer.size() > 0) {
+			// If buffer size is between 1 and 3, process the existing packets
+			while (!this.sendBuffer.isEmpty()) {
+				STS1Packet pkt = this.sendBuffer.remove();
+				destPackets.computeIfAbsent(pkt.getDest(), k -> new ArrayList<>()).add(pkt);
+			}
 		}
 
 		for (Map.Entry<Integer, List<STS1Packet>> entry : destPackets.entrySet()) {

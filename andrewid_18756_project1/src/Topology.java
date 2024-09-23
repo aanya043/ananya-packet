@@ -54,8 +54,10 @@ public class Topology {
 		/*
 		 * Test question 1: Sent a frame on the network
 		 */
-		DXC1.create(new STS1Packet("hey", 1490));
-		DXC2.create(new STS1Packet("hey11111", 1310));
+		DXC1.create(new STS1Packet("", 1490));
+		DXC1.create(new STS1Packet("", 1490));
+		DXC1.create(new STS1Packet("", 1490));
+		DXC1.create(new STS1Packet("", 1490));
 
 		for (int i = 0; i < 10; i++) {
 			tock();
@@ -113,9 +115,9 @@ public class Topology {
 		 * 
 		 */
 
-		for (int i = 0; i < 10; i++) {
-			tock();
-		}
+		// for (int i = 0; i < 10; i++) {
+		// tock();
+		// }
 
 	}
 
@@ -126,9 +128,9 @@ public class Topology {
 	public void tock() {
 		System.out.println("** TIME = " + time + " **");
 		time++;
-		System.out.println(allSwitch.size());
-		for (int i = 0; i < this.allSwitch.size(); i++)
+		for (int i = 0; i < this.allSwitch.size(); i++) {
 			allSwitch.get(i).sendPackets();
+		}
 	}
 
 	public static void main(String args[]) {
