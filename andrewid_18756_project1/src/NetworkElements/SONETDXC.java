@@ -1,5 +1,6 @@
 package NetworkElements;
 
+import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -72,16 +73,15 @@ public class SONETDXC extends Switch {
 		// Loop through the interfaces sending the packet on interfaces that are on the
 		// ring
 		// except the one it was received on. Basically what UPSR does
-		System.out.println("ringgggggg");
 		for (OpticalNIC NIC : NICs) {
-
 			// which means the DXC is the source of this STS-1 Packet
 			if (nic == null) {
-
+				System.out.println("Skipping NIC");
 			}
 			// transfer packet, to the shortest path first
+			// In NIC there is a function to send STS3 Packet, send packets using it
 			if (NIC.getIsOnRing() && !NIC.equals(nic)) {
-
+				NIC.sendPacket(packet, wavelength);
 			}
 		}
 	}
@@ -138,6 +138,22 @@ public class SONETDXC extends Switch {
 	 */
 	public void checkSegmentation(STS1Packet payload) {
 		// TODO: Need to check segmentation for char_length>5 (3b)
+		final int MAX_LEN = 5;
+		String payloadString = payload.getPayload();
+		int payloadLength = payloadString.length();
+
+		/*
+		 * Split the bigger payload into multiple STS1 frames and add to the DXC buffer
+		 * for processing
+		 */
+
+		for (int i = 0; i < payloadLength; i += MAX_LEN) {
+			String payloadSegment = payloadString.substring(i, Math.min(i + MAX_LEN, payloadLength));
+			STS1Packet newSTS1Packet = new STS1Packet(payloadSegment, payload.getDest());
+			System.out.println(newSTS1Packet);
+			this.sendBuffer.add(newSTS1Packet);
+
+		}
 		this.sendBuffer.add(payload);
 	}
 
