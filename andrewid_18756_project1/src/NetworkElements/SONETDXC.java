@@ -55,9 +55,32 @@ public class SONETDXC extends Switch {
 	 */
 	public void receivePackets(Packet packet, int wavelength, OpticalNIC nic) {
 		if (packet instanceof STS1Packet) {
+			STS1Packet sts1Packet = (STS1Packet) packet;
+			if (dropFrequency.contains(wavelength))
+				this.sink(sts1Packet, wavelength);
+		}
 
-		} else {
+		else if (packet instanceof STS3Packet) {
 
+			// Unpack STS3 into STS1 packets and buffer them for later
+			STS3Packet sts3Packet = (STS3Packet) packet;
+			List<STS1Packet> sts1Packets = sts3Packet.getPackets(); // Assume unpack returns an array
+
+			for (STS1Packet sts1 : sts1Packets) {
+				if (sts1 != null && dropFrequency.contains(wavelength)) {
+					int delay = sts1.getDelay() + 1;
+					STS1Packet sts1a = sts1;
+					sts1a.addDelay(delay);
+					this.sink(sts1a, wavelength);
+
+				}
+				// else
+				// this.sendBuffer.add(sts1); // Buffer each unpacked STS1 packet
+			}
+		}
+
+		else {
+			System.out.println("Packet type not recognized.");
 		}
 	}
 
