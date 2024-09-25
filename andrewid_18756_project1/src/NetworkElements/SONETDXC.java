@@ -55,27 +55,33 @@ public class SONETDXC extends Switch {
 	 */
 	public void receivePackets(Packet packet, int wavelength, OpticalNIC nic) {
 		if (packet instanceof STS1Packet) {
-			STS1Packet sts1Packet = (STS1Packet) packet;
+			STS1Packet sts1 = (STS1Packet) packet;
 			if (dropFrequency.contains(wavelength))
-				this.sink(sts1Packet, wavelength);
+				this.sink(sts1, wavelength);
+			else {
+				this.sendBuffer.add(sts1);
+			}
+			return;
 		}
 
-		else if (packet instanceof STS3Packet) {
+		if (packet instanceof STS3Packet) {
 
 			// Unpack STS3 into STS1 packets and buffer them for later
 			STS3Packet sts3Packet = (STS3Packet) packet;
 			List<STS1Packet> sts1Packets = sts3Packet.getPackets(); // Assume unpack returns an array
 
 			for (STS1Packet sts1 : sts1Packets) {
-				if (sts1 != null && dropFrequency.contains(wavelength)) {
-					int delay = sts1.getDelay() + 1;
-					STS1Packet sts1a = sts1;
-					sts1a.addDelay(delay);
-					this.sink(sts1a, wavelength);
+				if (sts1 == null)
+					break;
+
+				if (dropFrequency.contains(wavelength) || !destinationFrequencies.containsValue(wavelength)) {
+					this.sink(sts1, wavelength);
+
+				} else {
+					sts1.setNic(nic);
+					this.sendBuffer.add(sts1); // Buffer each unpacked STS1 packet
 
 				}
-				// else
-				// this.sendBuffer.add(sts1); // Buffer each unpacked STS1 packet
 			}
 		}
 
@@ -96,12 +102,11 @@ public class SONETDXC extends Switch {
 		// Loop through the interfaces sending the packet on interfaces that are on the
 		// ring
 		// except the one it was received on. Basically what UPSR does
-		System.out.println(packet.getPackets());
 		for (OpticalNIC NIC : NICs) {
 			// which means the DXC is the source of this STS-1 Packet
-			if (nic == null) {
-				System.out.println("Skipping NIC");
-			}
+			// if (nic == null) {
+			// }
+
 			// transfer packet, to the shortest path first
 			// In NIC there is a function to send STS3 Packet, send packets using it
 			if (NIC.getIsOnRing() && !NIC.equals(nic)) {
@@ -139,11 +144,13 @@ public class SONETDXC extends Switch {
 			for (int i = 0; i < pkts.size(); i += 3) {
 				STS1Packet sts1 = null, sts2 = null, sts3 = null;
 				sts1 = pkts.get(i);
-				if (i + 1 < pkts.size())
+				if (i + 1 < pkts.size()) {
 					sts2 = pkts.get(i + 1);
-				if (i + 2 < pkts.size())
+				}
+				if (i + 2 < pkts.size()) {
 					sts3 = pkts.get(i + 2);
-				this.sendRingPacket(new STS3Packet(sts1, sts2, sts3), entry.getKey(), null);
+				}
+				this.sendRingPacket(new STS3Packet(sts1, sts2, sts3), entry.getKey(), sts1.getNic());
 			}
 		}
 
@@ -188,11 +195,9 @@ public class SONETDXC extends Switch {
 		for (int i = 0; i < payloadLength; i += MAX_LEN) {
 			String payloadSegment = payloadString.substring(i, Math.min(i + MAX_LEN, payloadLength));
 			STS1Packet newSTS1Packet = new STS1Packet(payloadSegment, payload.getDest());
-			System.out.println(newSTS1Packet);
 			this.sendBuffer.add(newSTS1Packet);
 
 		}
-		this.sendBuffer.add(payload);
 	}
 
 	/**
