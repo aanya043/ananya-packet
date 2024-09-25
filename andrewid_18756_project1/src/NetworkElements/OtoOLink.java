@@ -1,5 +1,7 @@
 package NetworkElements;
 
+import java.util.List;
+
 import DataTypes.*;
 
 public class OtoOLink {
@@ -87,11 +89,15 @@ public class OtoOLink {
 		else if (this.linkCut)
 			System.err.println("Error (OtoOLink: You tried to send data down a line that is cut");
 		else {
-			if (packet instanceof STS1Packet) {
+			if (packet instanceof STS1Packet)
 				((STS1Packet) packet).addDelay(1);
-			} else if (packet instanceof STS3Packet) {
-				((STS3Packet) packet).addDelay(1);
-
+			else if (packet instanceof STS3Packet) {
+				STS3Packet sts3Packet = (STS3Packet) packet;
+				List<STS1Packet> sts1Packets = sts3Packet.getPackets(); // Assume unpack returns an array
+				for (STS1Packet sts1 : sts1Packets) {
+					if (sts1 != null)
+						sts1.addDelay(1);
+				}
 			}
 			this.dest.receiveData(packet, wavelength);
 		}

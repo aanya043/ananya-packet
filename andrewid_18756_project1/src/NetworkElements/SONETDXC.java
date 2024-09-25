@@ -98,32 +98,42 @@ public class SONETDXC extends Switch {
 	 * @param nic        the wavelength this packet originally came from (as we
 	 *                   don't want to send it back to the sender)
 	 */
+
 	public void sendRingPacket(STS3Packet packet, int wavelength, OpticalNIC nic) {
 		// Loop through the interfaces sending the packet on interfaces that are on the
 		// ring
 		// except the one it was received on. Basically what UPSR does
+		STS3Packet packet1 = packet.copy();
+		ArrayList<OpticalNIC> eligibleNics = new ArrayList<OpticalNIC>();
 		for (OpticalNIC NIC : NICs) {
 			// which means the DXC is the source of this STS-1 Packet
-			// if (nic == null) {
-			// }
+			if (nic == null) {
+				System.out.println("SKIPPING This");
+			}
 
 			// transfer packet, to the shortest path first
 			// In NIC there is a function to send STS3 Packet, send packets using it
 			if (NIC.getIsOnRing() && !NIC.equals(nic)) {
-				NIC.sendPacket(packet, wavelength);
+				// NIC.sendPacket(packet, wavelength);
+				eligibleNics.add(NIC);
 			}
+		}
+		for (int i = 0; i < eligibleNics.size(); i++) {
+			OpticalNIC NIC = eligibleNics.get(i);
+			if (i == 0)
+				NIC.sendPacket(packet1, wavelength);
+			else if (i == 1)
+				NIC.sendPacket(packet, wavelength);
+
 		}
 	}
 
 	/**
 	 * Send out the packets from buffer, form STS3Packets and send to NICs
 	 */
+
 	public void sendPackets() {
 		Map<Integer, List<STS1Packet>> destPackets = new HashMap<>();
-		// while (!this.sendBuffer.isEmpty()) {
-		// STS1Packet pkt = this.sendBuffer.remove();
-		// destPackets.computeIfAbsent(pkt.getDest(), k -> new ArrayList<>()).add(pkt);
-		// }
 		// Check the size of the sendBuffer
 		if (this.sendBuffer.size() > 3) {
 			// If buffer size is greater than 3, remove only the first 3 packets

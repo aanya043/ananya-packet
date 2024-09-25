@@ -59,7 +59,11 @@ public class STS1Packet extends Packet {
 	 * Returns a clone of this SPE object
 	 */
 	public STS1Packet clone() {
-		return null;
+		STS1Packet clonedPacket = new STS1Packet(this.payload, this.destWavelength);
+		clonedPacket.sourceWavelength = this.sourceWavelength;
+		clonedPacket.delay = this.delay;
+		clonedPacket.nic = this.nic;
+		return clonedPacket;
 	}
 
 	public String toString() {

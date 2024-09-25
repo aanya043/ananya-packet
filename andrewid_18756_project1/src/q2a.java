@@ -39,7 +39,8 @@ public class q2a {
 		DXC3.addDestinationFrequency("88:77:66", 1490);
 		DXC3.addDestinationFrequency("33:44:55", 1550);
 
-		// Create an interface for each DXC
+		// Create an interface for each DXC -> each DXC has 2 NICs -> 1 for sending ; 1
+		// for receiving
 		OpticalNIC nicDXC11 = new OpticalNIC(DXC1);
 		nicDXC11.setID(11);
 		OpticalNIC nicDXC12 = new OpticalNIC(DXC1);
@@ -56,37 +57,45 @@ public class q2a {
 		nicDXC32.setID(32);
 
 		// Create three-uni directional links between the DXCs
-		OtoOLink OneToTwo1 = new OtoOLink(nicDXC11, nicDXC21);
-		OtoOLink OneToTwo2 = new OtoOLink(nicDXC12, nicDXC22);
-		OtoOLink OneToThree1 = new OtoOLink(nicDXC11, nicDXC31);
-		OtoOLink OneToThree2 = new OtoOLink(nicDXC11, nicDXC32);
 
-		OtoOLink TwoToOne1 = new OtoOLink(nicDXC21, nicDXC11);
-		OtoOLink TwoToOne2 = new OtoOLink(nicDXC22, nicDXC12);
-		OtoOLink TwoToThree1 = new OtoOLink(nicDXC21, nicDXC31);
-		OtoOLink TwoToThree2 = new OtoOLink(nicDXC22, nicDXC32);
+		// Working path links
+		OtoOLink One1ToTwo1 = new OtoOLink(nicDXC11, nicDXC21);
+		OtoOLink Two2ToThree1 = new OtoOLink(nicDXC22, nicDXC31);
+		OtoOLink Three2ToOne2 = new OtoOLink(nicDXC32, nicDXC12);
 
-		OtoOLink ThreeToOne1 = new OtoOLink(nicDXC31, nicDXC11);
-		OtoOLink ThreeToOne2 = new OtoOLink(nicDXC32, nicDXC12);
-		OtoOLink ThreeToTwo1 = new OtoOLink(nicDXC31, nicDXC21);
-		OtoOLink ThreeToTwo2 = new OtoOLink(nicDXC32, nicDXC22);
+		// Protection path links
+		OtoOLink Three1ToTwo2 = new OtoOLink(nicDXC31, nicDXC22);
+		OtoOLink Two1ToOne1 = new OtoOLink(nicDXC21, nicDXC11);
+		OtoOLink One2ToThree2 = new OtoOLink(nicDXC12, nicDXC32);
+
+		// Set IN and OUT Link for each NIC
+		nicDXC11.setInLink(Two1ToOne1);
+		nicDXC11.setOutLink(One1ToTwo1);
+		nicDXC12.setInLink(Three2ToOne2);
+		nicDXC12.setOutLink(One2ToThree2);
+		nicDXC21.setInLink(One1ToTwo1);
+		nicDXC21.setOutLink(Two1ToOne1);
+		nicDXC22.setInLink(Three1ToTwo2);
+		nicDXC22.setOutLink(Two2ToThree1);
+		nicDXC31.setInLink(Two2ToThree1);
+		nicDXC31.setOutLink(Three1ToTwo2);
+		nicDXC32.setInLink(One2ToThree2);
+		nicDXC32.setOutLink(Three2ToOne2);
 
 		// Create packets to go to 1490 destination which is DXC2
 
-		DXC1.create(new STS1Packet("1122", 1550));
+		// DXC1.create(new STS1Packet("11", 1490));
+		// DXC1.create(new STS1Packet("11", 1490));
+		// DXC1.create(new STS1Packet("11", 1490));
 
 		// Create packets to go to 1550 destination which is DXC3 -> This has to go via
 		// ring 1->2->3
-		// DXC1.create(new STS1Packet("1122", 1550));
-		// DXC1.create(new STS1Packet("12345", 1550));
-		// DXC1.create(new STS1Packet("11", 1550));
+		// DXC1.create(new STS1Packet("11223344556", 1550)); // due to segmentation,this
+		// would be split into 3 packets.
 
-		/*
-		 * Test Question 2: Link broken with UPSR restoration
-		 * 
-		 * OneToTwo1.cutLink();
-		 */
-		// OneToTwo1.cutLink();
+		DXC3.create(new STS1Packet("11", 1310));
+		// To test UPSR, cut working link between A->B
+		One1ToTwo1.cutLink();
 
 		for (int i = 0; i < 10; i++) {
 			tock();

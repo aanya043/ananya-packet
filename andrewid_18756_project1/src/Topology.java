@@ -55,16 +55,12 @@ public class Topology {
 		 * Test question 1: Sent a frame on the network
 		 */
 		DXC1.create(new STS1Packet("1122", 1490));
-		DXC1.create(new STS1Packet("12345", 1490));
-		DXC1.create(new STS1Packet("11", 1490));
-		DXC1.create(new STS1Packet("123456789123", 1490));
-
 		/*
 		 * Test Question 2: Link broken with UPSR restoration
 		 * 
 		 * OneToTwo1.cutLink();
 		 */
-		// OneToTwo1.cutLink();
+		OneToTwo1.cutLink();
 
 		for (int i = 0; i < 10; i++) {
 			tock();
