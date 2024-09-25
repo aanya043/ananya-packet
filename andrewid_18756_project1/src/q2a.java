@@ -56,6 +56,22 @@ public class q2a {
 		OpticalNIC nicDXC32 = new OpticalNIC(DXC3);
 		nicDXC32.setID(32);
 
+		// Set Protection NIC for Working NIC
+		nicDXC11.setIsProtection(nicDXC12);
+		nicDXC12.setIsProtection(nicDXC11);
+		nicDXC22.setIsProtection(nicDXC21);
+		nicDXC21.setIsProtection(nicDXC22);
+		nicDXC32.setIsProtection(nicDXC31);
+		nicDXC31.setIsProtection(nicDXC32);
+
+		// Set Working NIC for Protection NIC
+		nicDXC11.setIsWorking(nicDXC12);
+		nicDXC12.setIsWorking(nicDXC11);
+		nicDXC22.setIsWorking(nicDXC21);
+		nicDXC21.setIsWorking(nicDXC22);
+		nicDXC31.setIsWorking(nicDXC32);
+		nicDXC32.setIsWorking(nicDXC31);
+
 		// Create three-uni directional links between the DXCs
 
 		// Working path links
@@ -71,20 +87,25 @@ public class q2a {
 		// Set IN and OUT Link for each NIC
 		nicDXC11.setInLink(Two1ToOne1);
 		nicDXC11.setOutLink(One1ToTwo1);
+
 		nicDXC12.setInLink(Three2ToOne2);
 		nicDXC12.setOutLink(One2ToThree2);
+
 		nicDXC21.setInLink(One1ToTwo1);
 		nicDXC21.setOutLink(Two1ToOne1);
+
 		nicDXC22.setInLink(Three1ToTwo2);
 		nicDXC22.setOutLink(Two2ToThree1);
+
 		nicDXC31.setInLink(Two2ToThree1);
 		nicDXC31.setOutLink(Three1ToTwo2);
+
 		nicDXC32.setInLink(One2ToThree2);
 		nicDXC32.setOutLink(Three2ToOne2);
 
 		// Create packets to go to 1490 destination which is DXC2
 
-		// DXC1.create(new STS1Packet("11", 1490));
+		DXC1.create(new STS1Packet("11", 1490));
 		// DXC1.create(new STS1Packet("11", 1490));
 		// DXC1.create(new STS1Packet("11", 1490));
 
@@ -95,7 +116,8 @@ public class q2a {
 
 		DXC3.create(new STS1Packet("11", 1310));
 		// To test UPSR, cut working link between A->B
-		// One1ToTwo1.cutLink();
+		One1ToTwo1.cutLink();
+		// Three2ToOne2.cutLink();
 
 		for (int i = 0; i < 10; i++) {
 			tock();

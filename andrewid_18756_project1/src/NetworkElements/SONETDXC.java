@@ -103,13 +103,13 @@ public class SONETDXC extends Switch {
 		// Loop through the interfaces sending the packet on interfaces that are on the
 		// ring
 		// except the one it was received on. Basically what UPSR does
-		STS3Packet packet1 = packet.copy();
 		ArrayList<OpticalNIC> eligibleNics = new ArrayList<OpticalNIC>();
 		for (OpticalNIC NIC : NICs) {
+			System.out.println("--------ALL" + NIC.getID());
 			// which means the DXC is the source of this STS-1 Packet
-			if (nic == null) {
-				System.out.println("SKIPPING This");
-			}
+			// if (nic == null) {
+			// System.out.println("SKIPPING This");
+			// }
 
 			// transfer packet, to the shortest path first
 			// In NIC there is a function to send STS3 Packet, send packets using it
@@ -118,7 +118,10 @@ public class SONETDXC extends Switch {
 			}
 		}
 		for (OpticalNIC NIC : eligibleNics) {
+			if (NIC.getHasError())
+				NIC = NIC.getProtectionNIC();
 			STS3Packet packetCopy = packet.copy(); // Create a new copy for each NIC
+			System.out.println("-------" + packetCopy.getPackets());
 			NIC.sendPacket(packetCopy, wavelength); // Send the packet to the NIC
 		}
 	}
