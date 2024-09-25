@@ -114,17 +114,12 @@ public class SONETDXC extends Switch {
 			// transfer packet, to the shortest path first
 			// In NIC there is a function to send STS3 Packet, send packets using it
 			if (NIC.getIsOnRing() && !NIC.equals(nic)) {
-				// NIC.sendPacket(packet, wavelength);
 				eligibleNics.add(NIC);
 			}
 		}
-		for (int i = 0; i < eligibleNics.size(); i++) {
-			OpticalNIC NIC = eligibleNics.get(i);
-			if (i == 0)
-				NIC.sendPacket(packet1, wavelength);
-			else if (i == 1)
-				NIC.sendPacket(packet, wavelength);
-
+		for (OpticalNIC NIC : eligibleNics) {
+			STS3Packet packetCopy = packet.copy(); // Create a new copy for each NIC
+			NIC.sendPacket(packetCopy, wavelength); // Send the packet to the NIC
 		}
 	}
 

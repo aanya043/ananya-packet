@@ -95,7 +95,7 @@ public class q2a {
 
 		DXC3.create(new STS1Packet("11", 1310));
 		// To test UPSR, cut working link between A->B
-		One1ToTwo1.cutLink();
+		// One1ToTwo1.cutLink();
 
 		for (int i = 0; i < 10; i++) {
 			tock();

@@ -60,7 +60,7 @@ public class Topology {
 		 * 
 		 * OneToTwo1.cutLink();
 		 */
-		OneToTwo1.cutLink();
+		// OneToTwo1.cutLink();
 
 		for (int i = 0; i < 10; i++) {
 			tock();
