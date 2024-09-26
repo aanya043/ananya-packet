@@ -21,6 +21,10 @@ public class STS1Packet extends Packet {
 		this.destWavelength = destWavelength;
 	}
 
+	public int getPayloadLengthLimit() {
+		return payloadLengthLimit;
+	}
+
 	public String getPayload() {
 		return payload;
 	}
