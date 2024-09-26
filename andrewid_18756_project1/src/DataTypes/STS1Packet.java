@@ -33,6 +33,10 @@ public class STS1Packet extends Packet {
 		return destWavelength;
 	}
 
+	public int getPayloadLengthLimit() {
+		return destWavelength;
+	}
+
 	public void setSource(int sourceWavelength) {
 		this.sourceWavelength = sourceWavelength;
 	}

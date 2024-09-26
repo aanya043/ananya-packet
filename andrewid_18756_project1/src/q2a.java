@@ -56,6 +56,11 @@ public class q2a {
 		OpticalNIC nicDXC32 = new OpticalNIC(DXC3);
 		nicDXC32.setID(32);
 
+		// Set Clockwise rings
+		nicDXC11.setClockwise(true);
+		nicDXC22.setClockwise(true);
+		nicDXC32.setClockwise(true);
+
 		// Set Protection NIC for Working NIC
 		nicDXC11.setIsProtection(nicDXC12);
 		nicDXC12.setIsProtection(nicDXC11);
@@ -120,7 +125,7 @@ public class q2a {
 
 		DXC3.create(new STS1Packet("11", 1310));
 		// To test UPSR, cut working link between A->B
-		// One1ToTwo1.cutLink();
+		Two1ToOne1.cutLink();
 		// Three2ToOne2.cutLink();
 
 		for (int i = 0; i < 10; i++) {

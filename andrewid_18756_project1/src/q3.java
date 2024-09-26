@@ -72,6 +72,13 @@ public class q3 {
 		nicDXC21.setIsWorking(nicDXC22);
 		nicDXC31.setIsWorking(nicDXC32);
 		nicDXC32.setIsWorking(nicDXC31);
+<<<<<<< Updated upstream
+=======
+		// Set clockwise rings
+		nicDXC11.setClockwise(true);
+		nicDXC22.setClockwise(true);
+		nicDXC32.setClockwise(true);
+>>>>>>> Stashed changes
 
 		// Create three-uni directional links between the DXCs
 
@@ -104,10 +111,32 @@ public class q3 {
 		nicDXC32.setInLink(One2ToThree2);
 		nicDXC32.setOutLink(Three2ToOne2);
 
+<<<<<<< Updated upstream
 		// q3
 		HomeRouter DXC1hr1 = new HomeRouter("DXC1hr1");
 		HomeRouter DXC1hr2 = new HomeRouter("DXC1hr2");
 		HomeRouter DXC2hr1 = new HomeRouter("DXC2hr1");
+=======
+		// Create packets to go to 1490 destination which is DXC2
+
+		// DXC1.create(new STS1Packet("11", 1490));
+		// DXC1.create(new STS1Packet("11", 1490));
+		// DXC1.create(new STS1Packet("11", 1490));
+
+		// Create packets to go to 1550 destination which is DXC3 -> This has to go via
+		// ring 1->2->3
+		// DXC1.create(new STS1Packet("11223344556", 1550)); // due to segmentation,this
+		// would be split into 3 packets.
+
+		// DXC3.create(new STS1Packet("11", 1310));
+		// To test UPSR, cut working link between A->B
+		// Two1ToOne1.cutLink();
+		// Three2ToOne2.cutLink();
+
+		HomeRouter DXC1hr1 = new HomeRouter("DXC1hr1");
+		HomeRouter DXC1hr2 = new HomeRouter("DXC1hr2");
+		HomeRouter DXC2hr1 = new HomeRouter("DXC1hr3");
+>>>>>>> Stashed changes
 		allSwitch.add(DXC1hr1);
 		allSwitch.add(DXC1hr2);
 		allSwitch.add(DXC2hr1);
@@ -116,16 +145,24 @@ public class q3 {
 		nicDXC1hr1.setID(41);
 		OpticalNIC nichr1DXC1 = new OpticalNIC(DXC1);
 		nichr1DXC1.setID(13);
+<<<<<<< Updated upstream
 		nichr1DXC1.setIsOnRing(false);
 		OpticalNIC nicDXC1hr2 = new OpticalNIC(DXC1hr2);
 		nicDXC1hr1.setID(51);
 		OpticalNIC nichr2DXC1 = new OpticalNIC(DXC1);
 		nichr2DXC1.setID(14);
 		nichr2DXC1.setIsOnRing(false);
+=======
+		OpticalNIC nicDXC1hr2 = new OpticalNIC(DXC1hr2);
+		nicDXC1hr2.setID(51);
+		OpticalNIC nichr2DXC1 = new OpticalNIC(DXC1);
+		nichr2DXC1.setID(14);
+>>>>>>> Stashed changes
 		OpticalNIC nicDXC2hr1 = new OpticalNIC(DXC2hr1);
 		nicDXC2hr1.setID(61);
 		OpticalNIC nichr1DXC2 = new OpticalNIC(DXC2);
 		nichr1DXC2.setID(23);
+<<<<<<< Updated upstream
 		nichr1DXC2.setIsOnRing(false);
 
 		// Create bi-directional Links and set out links
@@ -161,6 +198,30 @@ public class q3 {
 		// One1ToTwo1.cutLink();
 		// // Three2ToOne2.cutLink();
 
+=======
+
+		// Set On Ring to false
+		nichr1DXC1.setIsOnRing(false);
+		nichr2DXC1.setIsOnRing(false);
+		nichr1DXC2.setIsOnRing(false);
+
+		OtoOLink Hr1ToDXC1 = new OtoOLink(nicDXC1hr1, nichr1DXC1);
+		OtoOLink Hr2ToDXC1 = new OtoOLink(nicDXC1hr2, nichr2DXC1);
+		OtoOLink Hr2ToDXC2 = new OtoOLink(nichr1DXC2, nicDXC2hr1);
+
+		// Set outlinks for Home Router NIC
+		nicDXC1hr1.setOutLink(Hr1ToDXC1);
+		nicDXC1hr2.setOutLink(Hr2ToDXC1);
+		nicDXC2hr1.setOutLink(Hr2ToDXC2);
+
+		nichr1DXC1.setInLink(Hr1ToDXC1);
+
+		DXC1hr1.create(new STS1Packet("aaaaab", 1490));
+		// DXC1hr1.create(new STS1Packet("aaaaab", 1490));
+		// DXC1hr2.create(new STS1Packet("cccccd", 1490));
+		// DXC2hr1.create(new STS1Packet("eeeeef", 1490));
+
+>>>>>>> Stashed changes
 		for (int i = 0; i < 10; i++) {
 			tock();
 		}
@@ -168,7 +229,11 @@ public class q3 {
 	}
 
 	public void tock() {
+<<<<<<< Updated upstream
 		System.out.println("** TIME = " + time + "");
+=======
+		System.out.println("** TIME = " + time + " **");
+>>>>>>> Stashed changes
 		time++;
 		for (int i = 0; i < this.allSwitch.size(); i++) {
 			allSwitch.get(i).sendPackets();
@@ -179,4 +244,8 @@ public class q3 {
 		q3 go = new q3();
 		go.twoRings();
 	}
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes

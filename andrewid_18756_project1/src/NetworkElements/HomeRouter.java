@@ -53,7 +53,12 @@ public class HomeRouter extends Switch {
 	 * @param payload to put in the buffer
 	 */
 	public void checkSegmentation(STS1Packet payload) {
+<<<<<<< Updated upstream
 		final int MAX_LEN = payload.getPayloadLengthLimit();
+=======
+
+		final int MAX_LEN = 5;
+>>>>>>> Stashed changes
 		String payloadString = payload.getPayload();
 		int payloadLength = payloadString.length();
 
@@ -68,19 +73,28 @@ public class HomeRouter extends Switch {
 			this.sendBuffer.add(newSTS1Packet);
 
 		}
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 	}
 
 	/**
 	 * Send out the STS1Packets from buffer
 	 */
 	public void sendPackets() {
+<<<<<<< Updated upstream
 		OpticalNIC nic = this.nic;
 		if (!this.sendBuffer.isEmpty()) {
 			STS1Packet pkt = this.sendBuffer.poll();
 			int destinationNic = nic.getOutLink().getDest().getID();
 			nic.sendPacket(pkt, pkt.getDest());
 
+=======
+		if (!sendBuffer.isEmpty()) {
+			STS1Packet sts1 = sendBuffer.poll();
+			nic.sendPacket(sts1, sts1.getDest());
+>>>>>>> Stashed changes
 		}
 
 	}
