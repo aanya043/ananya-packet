@@ -60,6 +60,7 @@ public class SONETDXC extends Switch {
 			// call send packet within DXC
 			STS1Packet sts1 = (STS1Packet) packet;
 			sts1.setDelay(0);
+			sts1.setNic(nic);
 			this.sendBuffer.add(sts1);
 			this.sendPackets();
 
@@ -106,7 +107,8 @@ public class SONETDXC extends Switch {
 		// Loop through the interfaces sending the packet on interfaces that are on the
 		// ring
 		// except the one it was received on. Basically what UPSR does
-		System.err.println(NICs);
+		STS3Packet st3 = (STS3Packet) packet;
+		System.err.println(st3.getPackets());
 		ArrayList<OpticalNIC> eligibleNics = new ArrayList<>();
 
 		// Collect eligible NICs
@@ -148,7 +150,6 @@ public class SONETDXC extends Switch {
 				destPackets.computeIfAbsent(pkt.getDest(), k -> new ArrayList<>()).add(pkt);
 			}
 		} else if (this.sendBuffer.size() > 0) {
-			System.err.println(this.sendBuffer);
 			// If buffer size is between 1 and 3, process the existing packets
 			while (!this.sendBuffer.isEmpty()) {
 				STS1Packet pkt = this.sendBuffer.remove();
