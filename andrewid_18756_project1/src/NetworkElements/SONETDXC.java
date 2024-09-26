@@ -55,25 +55,17 @@ public class SONETDXC extends Switch {
 	 */
 	public void receivePackets(Packet packet, int wavelength, OpticalNIC nic) {
 		if (packet instanceof STS1Packet) {
+			// update the nic of the packet as 13
+			// add to buffer
+			// call send packet within DXC
 			STS1Packet sts1 = (STS1Packet) packet;
-			if (dropFrequency.contains(wavelength)) {
-				// if both working and protection are working fine, then sink only from working
-				// else sink from protection
-				if (nic != null) {
-					if (!nic.getHasError())
-						this.sink(sts1, wavelength);
-					else if (nic.getProtectionNIC() != null) {
-						if (!nic.getProtectionNIC().getHasError())
-							this.sink(sts1, wavelength);
-					}
-				}
-			} else {
-				this.sendBuffer.add(sts1);
-			}
-			return;
+			sts1.setDelay(0);
+			this.sendBuffer.add(sts1);
+			this.sendPackets();
+
 		}
 
-		if (packet instanceof STS3Packet) {
+		else if (packet instanceof STS3Packet) {
 
 			// Unpack STS3 into STS1 packets and buffer them for later
 			STS3Packet sts3Packet = (STS3Packet) packet;
@@ -99,9 +91,6 @@ public class SONETDXC extends Switch {
 			}
 		}
 
-		else {
-			System.out.println("Packet type not recognized.");
-		}
 	}
 
 	/**
@@ -117,6 +106,7 @@ public class SONETDXC extends Switch {
 		// Loop through the interfaces sending the packet on interfaces that are on the
 		// ring
 		// except the one it was received on. Basically what UPSR does
+		System.err.println(NICs);
 		ArrayList<OpticalNIC> eligibleNics = new ArrayList<>();
 
 		// Collect eligible NICs
@@ -158,6 +148,7 @@ public class SONETDXC extends Switch {
 				destPackets.computeIfAbsent(pkt.getDest(), k -> new ArrayList<>()).add(pkt);
 			}
 		} else if (this.sendBuffer.size() > 0) {
+			System.err.println(this.sendBuffer);
 			// If buffer size is between 1 and 3, process the existing packets
 			while (!this.sendBuffer.isEmpty()) {
 				STS1Packet pkt = this.sendBuffer.remove();

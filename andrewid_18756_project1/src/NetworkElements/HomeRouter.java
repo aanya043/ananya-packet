@@ -76,11 +76,11 @@ public class HomeRouter extends Switch {
 	 */
 	public void sendPackets() {
 		OpticalNIC nic = this.nic;
-		Map<Integer, List<STS1Packet>> destPackets = new HashMap<>();
 		if (!this.sendBuffer.isEmpty()) {
-			STS1Packet pkt = this.sendBuffer.remove();
-			destPackets.computeIfAbsent(pkt.getDest(), k -> new ArrayList<>()).add(pkt);
-			// TODO
+			STS1Packet pkt = this.sendBuffer.poll();
+			int destinationNic = nic.getOutLink().getDest().getID();
+			nic.sendPacket(pkt, pkt.getDest());
+
 		}
 
 	}

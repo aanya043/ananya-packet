@@ -50,6 +50,10 @@ public class STS1Packet extends Packet {
 		this.delay += delay;
 	}
 
+	public void setDelay(int delay) {
+		this.delay = delay;
+	}
+
 	/**
 	 * Returns the total amount of delay this SPE has experienced during it's travel
 	 * 
