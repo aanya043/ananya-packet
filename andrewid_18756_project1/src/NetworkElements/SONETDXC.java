@@ -55,16 +55,18 @@ public class SONETDXC extends Switch {
 	 */
 	public void receivePackets(Packet packet, int wavelength, OpticalNIC nic) {
 		if (packet instanceof STS1Packet) {
+			// update the nic of the packet as 13
+			// add to buffer
+			// call send packet within DXC
 			STS1Packet sts1 = (STS1Packet) packet;
-			if (dropFrequency.contains(wavelength))
-				this.sink(sts1, wavelength);
-			else {
-				this.sendBuffer.add(sts1);
-			}
-			return;
+			sts1.setDelay(0);
+			sts1.setNic(nic);
+			this.sendBuffer.add(sts1);
+			this.sendPackets();
+
 		}
 
-		if (packet instanceof STS3Packet) {
+		else if (packet instanceof STS3Packet) {
 
 			// Unpack STS3 into STS1 packets and buffer them for later
 			STS3Packet sts3Packet = (STS3Packet) packet;
@@ -75,7 +77,12 @@ public class SONETDXC extends Switch {
 					break;
 
 				if (dropFrequency.contains(wavelength) || !destinationFrequencies.containsValue(wavelength)) {
-					this.sink(sts1, wavelength);
+					if (nic != null) {
+						if (!nic.getHasError())
+							this.sink(sts1, wavelength);
+						else if (!nic.getProtectionNIC().getHasError())
+							this.sink(sts1, wavelength);
+					}
 
 				} else {
 					sts1.setNic(nic);
@@ -85,9 +92,6 @@ public class SONETDXC extends Switch {
 			}
 		}
 
-		else {
-			System.out.println("Packet type not recognized.");
-		}
 	}
 
 	/**
@@ -103,26 +107,32 @@ public class SONETDXC extends Switch {
 		// Loop through the interfaces sending the packet on interfaces that are on the
 		// ring
 		// except the one it was received on. Basically what UPSR does
-		ArrayList<OpticalNIC> eligibleNics = new ArrayList<OpticalNIC>();
-		for (OpticalNIC NIC : NICs) {
-			System.out.println("--------ALL" + NIC.getID());
-			// which means the DXC is the source of this STS-1 Packet
-			// if (nic == null) {
-			// System.out.println("SKIPPING This");
-			// }
+		STS3Packet st3 = (STS3Packet) packet;
+		System.err.println(st3.getPackets());
+		ArrayList<OpticalNIC> eligibleNics = new ArrayList<>();
 
-			// transfer packet, to the shortest path first
-			// In NIC there is a function to send STS3 Packet, send packets using it
-			if (NIC.getIsOnRing() && !NIC.equals(nic)) {
+		// Collect eligible NICs
+		for (OpticalNIC NIC : NICs) {
+			// Check if the NIC is on the ring
+			if (NIC.getIsOnRing() && NIC != null) {
 				eligibleNics.add(NIC);
 			}
 		}
-		for (OpticalNIC NIC : eligibleNics) {
-			if (NIC.getHasError())
-				NIC = NIC.getProtectionNIC();
-			STS3Packet packetCopy = packet.copy(); // Create a new copy for each NIC
-			System.out.println("-------" + packetCopy.getPackets());
-			NIC.sendPacket(packetCopy, wavelength); // Send the packet to the NIC
+
+		// If nic is null, send packet to all eligible NICs
+		if (nic == null) {
+			for (OpticalNIC NIC : eligibleNics) {
+				STS3Packet packetCopy = packet.copy(); // Create a new copy for each NIC
+				NIC.sendPacket(packetCopy, wavelength); // Send the packet to the NIC
+			}
+		} else {
+			// Send packets only on NICs where isClockWise is true
+			for (OpticalNIC NIC : eligibleNics) {
+				if (NIC.getIsClockwise()) {
+					STS3Packet packetCopy = packet.copy(); // Create a new copy for each NIC
+					NIC.sendPacket(packetCopy, wavelength); // Send the packet to the NIC
+				}
+			}
 		}
 	}
 
@@ -191,7 +201,7 @@ public class SONETDXC extends Switch {
 	 */
 	public void checkSegmentation(STS1Packet payload) {
 		// TODO: Need to check segmentation for char_length>5 (3b)
-		final int MAX_LEN = 5;
+		final int MAX_LEN = payload.getPayloadLengthLimit();
 		String payloadString = payload.getPayload();
 		int payloadLength = payloadString.length();
 
